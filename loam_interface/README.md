@@ -31,7 +31,8 @@ The main node that handles coordinate frame transformations for LiDAR SLAM integ
 
 | Topic | Type | Description |
 |-------|------|-------------|
-| `registered_scan` | `sensor_msgs/msg/PointCloud2` | Transformed point cloud in the global `odom_frame` |
+| `registered_scan` | `sensor_msgs/msg/PointCloud2` | Transformed point cloud in the global `odom_frame` (for mapping and navigation) |
+| `sensor_scan` | `sensor_msgs/msg/PointCloud2` | Transformed point cloud in the `lidar_frame` (for local perception and obstacle avoidance) |
 | `lidar_odometry` | `nav_msgs/msg/Odometry` | Transformed odometry in the global `odom_frame` |
 
 ### TF Broadcasts
@@ -55,19 +56,36 @@ The main node that handles coordinate frame transformations for LiDAR SLAM integ
 
 ### pointCloudCallback
 
-Transforms the input point cloud from the SLAM's local odometry frame to the global `odom_frame`.
+to both the global `odom_frame` and `lidar_frame`, supporting various input coordinate frames.
 
+**Supported Input Frames:**
+
+- SLAM's local odometry frame (e.g., `lidar_odom`)
+- Global odometry frame (`odom`)
+- LiDAR sensor frame (`lidar_frame`)
+- IMU frame or other sensor frames
+
+**Transformation Logic:**
+
+```txt
+                    Input Point Cloud (any frame)
+                              │
+                ┌─────────────┴─────────────┐
+                ▼                           ▼
+        ┌──────────────┐            ┌──────────────┐
+        │ Transform to │            │ Transform to │
+        │  odom_frame  │            │ lidar_frame  │
+        └──────────────┘            └──────────────┘
+                │                           │
+                ▼                           ▼
+      registered_scan (odom)        sensor_scan (lidar)
 ```
-Input Point Cloud (lidar_odom frame)
-         │
-         ▼
-    ┌─────────────┐
-    │  Transform  │  tf_odom_to_lidar_odom_
-    └─────────────┘
-         │
-         ▼
-Output Point Cloud (odom_frame)
-```
+
+**Optimization:**
+
+- If input is already in target frame → direct copy (no transformation)
+- If input is in `lidar_odom` frame → use cached `tf_odom_to_lidar_odom_`
+- Otherwise → dynamically query TF tree for transformationput Point Cloud (odom_frame)
 
 ### odometryCallback
 
@@ -79,9 +97,10 @@ Performs the following operations:
 
 3. **Publish TF**: Broadcasts the transform from `odom_frame` → `base_frame` based on the transformed odometry and the static LiDAR-to-base transform.
 
-```
+```txt
+
 ┌──────────────────────────────────────────────────────────┐
-│                    Frame Relationship                     │
+│                    Frame Relationship                    │
 ├──────────────────────────────────────────────────────────┤
 │                                                          │
 │   lidar_odom ─────► lidar_frame                          │
@@ -94,6 +113,7 @@ Performs the following operations:
 │            (published)                                   │
 │                                                          │
 └──────────────────────────────────────────────────────────┘
+
 ```
 
 ## Usage

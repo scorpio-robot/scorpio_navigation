@@ -49,6 +49,7 @@ private:
   rclcpp::Subscription<nav_msgs::msg::Odometry>::SharedPtr odom_sub_;
 
   rclcpp::Publisher<sensor_msgs::msg::PointCloud2>::SharedPtr pcd_pub_;
+  rclcpp::Publisher<sensor_msgs::msg::PointCloud2>::SharedPtr sensor_scan_pub_;
   rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr odom_pub_;
 
   std::unique_ptr<tf2_ros::Buffer> tf_buffer_;
