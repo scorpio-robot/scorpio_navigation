@@ -12,7 +12,7 @@ lio_3d_node:
   ros__parameters:
     use_sim_time: True
     lidar_type: "livox"
-    use_as_localizer: True
+    use_as_localizer: False
     map_cloud_dir: $(find-pkg-share scorpio_nav_bringup)/maps/318
     param_files_dir: $(find-pkg-share scorpio_nav_bringup)/params
 
@@ -25,8 +25,8 @@ lio_3d_node:
     aligned_scan_cloud_topic: "pslam/aligned_scan_cloud"
     deskewed_scan_cloud_topic: "pslam/deskewed_scan_cloud"
 
-    odom_frame: "odom"
-    imu_frame: "mid360_imu"
+    odom_frame: "pslam/odom"
+    imu_frame: "pslam/mid360_imu"
     publish_tf: false  # Whether to publish TF transform from `odom_frame` to `imu_frame`
 
 slam_3d_node:
@@ -43,6 +43,6 @@ slam_3d_node:
     odom_edges_topic: "pslam/pose_graph_odom_edges"
     loop_edges_topic: "pslam/pose_graph_loop_edges"
 
-    map_frame: "map"
+    map_frame: "pslam/map"
     # odometry and imu frames are defined in lio_3d_config.yaml
-    publish_tf: True  # Whether to publish TF transform from `map_frame` to `odom_frame`
+    publish_tf: false  # Whether to publish TF transform from `map_frame` to `odom_frame`

@@ -90,7 +90,7 @@ def generate_launch_description():
 
     declare_rviz_config_file_cmd = DeclareLaunchArgument(
         "rviz_config_file",
-        default_value=os.path.join(bringup_dir, "rviz", "lio_3d.rviz"),
+        default_value=os.path.join(bringup_dir, "rviz", "default_view.rviz"),
         description="Full path to the RVIZ config file to use",
     )
 
@@ -119,16 +119,16 @@ def generate_launch_description():
                 parameters=[configured_params],
                 arguments=["--ros-args", "--log-level", log_level],
             ),
-            # Node(
-            #     package="plain_slam_ros2",
-            #     executable="slam_3d_node",
-            #     name="slam_3d_node",
-            #     output="screen",
-            #     respawn=use_respawn,
-            #     respawn_delay=2.0,
-            #     parameters=[configured_params],
-            #     arguments=["--ros-args", "--log-level", log_level],
-            # ),
+            Node(
+                package="plain_slam_ros2",
+                executable="slam_3d_node",
+                name="slam_3d_node",
+                output="screen",
+                respawn=use_respawn,
+                respawn_delay=2.0,
+                parameters=[configured_params],
+                arguments=["--ros-args", "--log-level", log_level],
+            ),
         ],
     )
 

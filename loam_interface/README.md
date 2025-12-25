@@ -22,10 +22,11 @@ The main node that handles coordinate frame transformations for LiDAR SLAM integ
 
 ### Subscriptions
 
-| Topic | Type | Description |
-|-------|------|-------------|
-| `state_estimation_topic` | `nav_msgs/msg/Odometry` | Odometry output from SLAM algorithm (default: `/pslam/imu_odom`) |
-| `registered_scan_topic` | `sensor_msgs/msg/PointCloud2` | Registered point cloud from SLAM (default: `/pslam/deskewed_scan_cloud`) |
+| Topic | Type | QoS | Description |
+|-------|------|-----|-------------|
+| `state_estimation_topic` | `nav_msgs/msg/Odometry` | Default | Odometry output from SLAM algorithm (default: `pslam/imu_odom`) |
+| `registered_scan_topic` | `sensor_msgs/msg/PointCloud2` | Default | Registered/aligned point cloud from SLAM (default: `pslam/aligned_scan_cloud`) |
+| `pslam/lio_map_cloud` | `sensor_msgs/msg/PointCloud2` | Transient Local, Reliable | Map point cloud from SLAM algorithm (latched topic) |
 
 ### Publications
 
@@ -33,6 +34,7 @@ The main node that handles coordinate frame transformations for LiDAR SLAM integ
 |-------|------|-------------|
 | `registered_scan` | `sensor_msgs/msg/PointCloud2` | Transformed point cloud in the global `odom_frame` (for mapping and navigation) |
 | `sensor_scan` | `sensor_msgs/msg/PointCloud2` | Transformed point cloud in the `lidar_frame` (for local perception and obstacle avoidance) |
+| `map_cloud` | `sensor_msgs/msg/PointCloud2` | Transformed map point cloud in the global `odom_frame` |
 | `lidar_odometry` | `nav_msgs/msg/Odometry` | Transformed odometry in the global `odom_frame` |
 
 ### TF Broadcasts
@@ -45,8 +47,8 @@ The main node that handles coordinate frame transformations for LiDAR SLAM integ
 
 | Parameter | Type | Default | Description |
 |-----------|------|---------|-------------|
-| `registered_scan_topic` | string | `/pslam/deskewed_scan_cloud` | Input point cloud topic from SLAM |
-| `state_estimation_topic` | string | `/pslam/imu_odom` | Input odometry topic from SLAM |
+| `registered_scan_topic` | string | `pslam/aligned_scan_cloud` | Input point cloud topic from SLAM |
+| `state_estimation_topic` | string | `pslam/imu_odom` | Input odometry topic from SLAM |
 | `odom_frame` | string | `odom` | Global odometry frame ID |
 | `base_frame` | string | `base_footprint` | Robot base frame for TF broadcast |
 | `lidar_frame` | string | `mid360` | LiDAR sensor frame ID |
@@ -56,36 +58,56 @@ The main node that handles coordinate frame transformations for LiDAR SLAM integ
 
 ### pointCloudCallback
 
-to both the global `odom_frame` and `lidar_frame`, supporting various input coordinate frames.
+Transforms input point cloud to both the global `odom_frame` and `lidar_frame` using cached transformations.
 
-**Supported Input Frames:**
+**Input Assumption:**
 
-- SLAM's local odometry frame (e.g., `lidar_odom`)
-- Global odometry frame (`odom`)
-- LiDAR sensor frame (`lidar_frame`)
-- IMU frame or other sensor frames
+- Input point cloud is expected to be in SLAM's local odometry frame (e.g., `lidar_odom`)
+- The transformation is computed from the latest odometry message
 
 **Transformation Logic:**
 
 ```txt
-                    Input Point Cloud (any frame)
-                              │
-                ┌─────────────┴─────────────┐
-                ▼                           ▼
-        ┌──────────────┐            ┌──────────────┐
-        │ Transform to │            │ Transform to │
-        │  odom_frame  │            │ lidar_frame  │
-        └──────────────┘            └──────────────┘
-                │                           │
-                ▼                           ▼
-      registered_scan (odom)        sensor_scan (lidar)
+   Input Point Cloud (lidar_odom frame)
+              │
+              ├─────────────────────────────┐
+              ▼                             ▼
+    ┌──────────────────┐        ┌──────────────────┐
+    │  Transform with  │        │  Transform with  │
+    │ tf_odom_to_      │        │ tf_lidar_odom_   │
+    │ lidar_odom_      │        │ to_lidar_^-1     │
+    └──────────────────┘        └──────────────────┘
+              │                             │
+              ▼                             ▼
+    registered_scan (odom)       sensor_scan (lidar)
 ```
 
-**Optimization:**
+### mapCloudCallback
 
-- If input is already in target frame → direct copy (no transformation)
-- If input is in `lidar_odom` frame → use cached `tf_odom_to_lidar_odom_`
-- Otherwise → dynamically query TF tree for transformationput Point Cloud (odom_frame)
+Transforms the SLAM-generated map point cloud to the global `odom_frame`.
+
+**Input:**
+
+- Subscribes to `pslam/lio_map_cloud` with **Transient Local** QoS (latched topic)
+- Map is typically published once or infrequently updated
+
+**Transformation:**
+
+```txt
+   Map Point Cloud (lidar_odom frame)
+              │
+              ▼
+    ┌──────────────────┐
+    │  Transform with  │
+    │ tf_odom_to_      │
+    │ lidar_odom_      │
+    └──────────────────┘
+              │
+              ▼
+       map_cloud (odom)
+```
+
+**Note:** Uses the same cached transformation as point cloud callback for consistency.
 
 ### odometryCallback
 

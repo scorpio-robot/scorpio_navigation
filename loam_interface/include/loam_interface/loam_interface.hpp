@@ -38,6 +38,8 @@ private:
 
   void odometryCallback(const nav_msgs::msg::Odometry::ConstSharedPtr msg);
 
+  void mapCloudCallback(const sensor_msgs::msg::PointCloud2::ConstSharedPtr msg);
+
   tf2::Transform getTransform(
     const std::string & target_frame, const std::string & source_frame, const rclcpp::Time & time);
 
@@ -46,10 +48,12 @@ private:
     const std::string & child_frame, const rclcpp::Time & stamp);
 
   rclcpp::Subscription<sensor_msgs::msg::PointCloud2>::SharedPtr pcd_sub_;
+  rclcpp::Subscription<sensor_msgs::msg::PointCloud2>::SharedPtr map_cloud_sub_;
   rclcpp::Subscription<nav_msgs::msg::Odometry>::SharedPtr odom_sub_;
 
   rclcpp::Publisher<sensor_msgs::msg::PointCloud2>::SharedPtr pcd_pub_;
   rclcpp::Publisher<sensor_msgs::msg::PointCloud2>::SharedPtr sensor_scan_pub_;
+  rclcpp::Publisher<sensor_msgs::msg::PointCloud2>::SharedPtr map_cloud_pub_;
   rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr odom_pub_;
 
   std::unique_ptr<tf2_ros::Buffer> tf_buffer_;
@@ -65,6 +69,7 @@ private:
 
   bool base_frame_to_lidar_initialized_;
   tf2::Transform tf_odom_to_lidar_odom_;
+  tf2::Transform tf_lidar_odom_to_lidar_;
 };
 
 }  // namespace loam_interface

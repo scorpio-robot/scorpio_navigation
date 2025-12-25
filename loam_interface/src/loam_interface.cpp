@@ -23,8 +23,8 @@ namespace loam_interface
 LoamInterfaceNode::LoamInterfaceNode(const rclcpp::NodeOptions & options)
 : Node("loam_interface", options)
 {
-  this->declare_parameter<std::string>("state_estimation_topic", "/pslam/imu_odom");
-  this->declare_parameter<std::string>("registered_scan_topic", "/pslam/deskewed_scan_cloud");
+  this->declare_parameter<std::string>("state_estimation_topic", "pslam/imu_odom");
+  this->declare_parameter<std::string>("registered_scan_topic", "pslam/aligned_scan_cloud");
   this->declare_parameter<std::string>("odom_frame", "odom");
   this->declare_parameter<std::string>("base_frame", "base_footprint");
   this->declare_parameter<std::string>("lidar_frame", "mid360");
@@ -45,11 +45,15 @@ LoamInterfaceNode::LoamInterfaceNode(const rclcpp::NodeOptions & options)
 
   pcd_pub_ = this->create_publisher<sensor_msgs::msg::PointCloud2>("registered_scan", 5);
   sensor_scan_pub_ = this->create_publisher<sensor_msgs::msg::PointCloud2>("sensor_scan", 5);
+  map_cloud_pub_ = this->create_publisher<sensor_msgs::msg::PointCloud2>("map_cloud", 5);
   odom_pub_ = this->create_publisher<nav_msgs::msg::Odometry>("lidar_odometry", 5);
 
   pcd_sub_ = this->create_subscription<sensor_msgs::msg::PointCloud2>(
     registered_scan_topic_, 5,
     std::bind(&LoamInterfaceNode::pointCloudCallback, this, std::placeholders::_1));
+  map_cloud_sub_ = this->create_subscription<sensor_msgs::msg::PointCloud2>(
+    "pslam/lio_map_cloud", rclcpp::QoS(1).transient_local().reliable(),
+    std::bind(&LoamInterfaceNode::mapCloudCallback, this, std::placeholders::_1));
   odom_sub_ = this->create_subscription<nav_msgs::msg::Odometry>(
     state_estimation_topic_, 5,
     std::bind(&LoamInterfaceNode::odometryCallback, this, std::placeholders::_1));
@@ -57,46 +61,28 @@ LoamInterfaceNode::LoamInterfaceNode(const rclcpp::NodeOptions & options)
 
 void LoamInterfaceNode::pointCloudCallback(const sensor_msgs::msg::PointCloud2::ConstSharedPtr msg)
 {
-  // NOTE: Input point cloud can be in various frames (odom, lidar, imu, etc.)
-  // We publish both registered_scan (odom_frame) and sensor_scan (lidar_frame)
-
-  const std::string & input_frame = msg->header.frame_id;
-
   // Transform to odom_frame for registered_scan
   auto registered_scan = std::make_shared<sensor_msgs::msg::PointCloud2>();
-  if (input_frame == odom_frame_) {
-    // Already in odom frame, no transformation needed
-    *registered_scan = *msg;
-  } else {
-    // Transform from input frame to odom_frame
-    tf2::Transform tf_odom_to_input;
-    if (input_frame == lidar_frame_ && base_frame_to_lidar_initialized_) {
-      // Use cached transform for lidar odometry frame
-      tf_odom_to_input = tf_odom_to_lidar_odom_;
-    } else {
-      // Look up transform from TF tree
-      tf_odom_to_input = getTransform(odom_frame_, input_frame, msg->header.stamp);
-    }
-    pcl_ros::transformPointCloud(odom_frame_, tf_odom_to_input, *msg, *registered_scan);
-    registered_scan->header.stamp = msg->header.stamp;
-  }
+  // auto tf_odom_to_input = getTransform(odom_frame_, msg->header.frame_id, msg->header.stamp);
+  pcl_ros::transformPointCloud(odom_frame_, tf_odom_to_lidar_odom_, *msg, *registered_scan);
   pcd_pub_->publish(*registered_scan);
 
   // Transform to lidar_frame for sensor_scan
   auto sensor_scan = std::make_shared<sensor_msgs::msg::PointCloud2>();
-  if (input_frame == lidar_frame_) {
-    // Already in lidar frame, no transformation needed
-    *sensor_scan = *msg;
-  } else if (input_frame == odom_frame_) {
-    // Transform from odom to lidar
-    tf2::Transform tf_lidar_to_odom = getTransform(lidar_frame_, odom_frame_, msg->header.stamp);
-    pcl_ros::transformPointCloud(lidar_frame_, tf_lidar_to_odom, *msg, *sensor_scan);
-  } else {
-    // Transform from input frame to lidar frame through TF tree
-    tf2::Transform tf_lidar_to_input = getTransform(lidar_frame_, input_frame, msg->header.stamp);
-    pcl_ros::transformPointCloud(lidar_frame_, tf_lidar_to_input, *msg, *sensor_scan);
-  }
+  pcl_ros::transformPointCloud(lidar_frame_, tf_lidar_odom_to_lidar_.inverse(), *msg, *sensor_scan);
+
   sensor_scan_pub_->publish(*sensor_scan);
+}
+
+void LoamInterfaceNode::mapCloudCallback(const sensor_msgs::msg::PointCloud2::ConstSharedPtr msg)
+{
+  // Transform map cloud from input frame to odom_frame
+  auto map_cloud = std::make_shared<sensor_msgs::msg::PointCloud2>();
+  pcl_ros::transformPointCloud(odom_frame_, tf_odom_to_lidar_odom_, *msg, *map_cloud);
+
+  RCLCPP_INFO(this->get_logger(), "Publishing map cloud in frame: %s", odom_frame_.c_str());
+
+  map_cloud_pub_->publish(*map_cloud);
 }
 
 void LoamInterfaceNode::odometryCallback(const nav_msgs::msg::Odometry::ConstSharedPtr msg)
@@ -112,7 +98,7 @@ void LoamInterfaceNode::odometryCallback(const nav_msgs::msg::Odometry::ConstSha
       tf2::Transform tf_base_frame_to_lidar;
       tf2::fromMsg(tf_stamped.transform, tf_base_frame_to_lidar);
 
-      // 只保留 yaw，清零 roll 和 pitch
+      // Keep only yaw, zero out roll and pitch
       double roll, pitch, yaw;
       tf2::Matrix3x3(tf_base_frame_to_lidar.getRotation()).getRPY(roll, pitch, yaw);
       tf2::Quaternion q;
@@ -130,9 +116,8 @@ void LoamInterfaceNode::odometryCallback(const nav_msgs::msg::Odometry::ConstSha
   }
 
   // Transform the odometry_msg (based on lidar_odom) to the odom frame
-  tf2::Transform tf_lidar_odom_to_lidar;
-  tf2::fromMsg(msg->pose.pose, tf_lidar_odom_to_lidar);
-  tf2::Transform tf_odom_to_lidar = tf_odom_to_lidar_odom_ * tf_lidar_odom_to_lidar;
+  tf2::fromMsg(msg->pose.pose, tf_lidar_odom_to_lidar_);
+  tf2::Transform tf_odom_to_lidar = tf_odom_to_lidar_odom_ * tf_lidar_odom_to_lidar_;
 
   // Publish transformed odometry
   nav_msgs::msg::Odometry out;
@@ -154,6 +139,22 @@ void LoamInterfaceNode::odometryCallback(const nav_msgs::msg::Odometry::ConstSha
   tf2::Transform tf_odom_to_base = tf_odom_to_lidar * tf_lidar_to_base;
 
   publishTransform(tf_odom_to_base, odom_frame_, base_frame_, msg->header.stamp);
+
+  // auto print_tf = [this](const std::string & name, const tf2::Transform & tf) {
+  //   double roll, pitch, yaw;
+  //   tf2::Matrix3x3(tf.getRotation()).getRPY(roll, pitch, yaw);
+  //   const auto & o = tf.getOrigin();
+  //   RCLCPP_INFO(
+  //     this->get_logger(), "%s: x=%.2f y=%.2f z=%.2f roll=%.2f pitch=%.2f yaw=%.2f", name.c_str(),
+  //     o.x(), o.y(), o.z(), roll, pitch, yaw);
+  // };
+
+  // print_tf("tf_odom_to_base", tf_odom_to_base);
+  // print_tf("tf_odom_to_lidar", tf_odom_to_lidar);
+  // print_tf("tf_lidar_to_base", tf_lidar_to_base);
+  // print_tf("tf_odom_to_lidar_odom_", tf_odom_to_lidar_odom_);
+  // print_tf("tf_lidar_odom_to_lidar_", tf_lidar_odom_to_lidar_);
+  // RCLCPP_INFO(this->get_logger(), "--------");
 }
 
 tf2::Transform LoamInterfaceNode::getTransform(
