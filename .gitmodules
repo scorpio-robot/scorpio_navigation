@@ -1,0 +1,3 @@
+[submodule "plain_slam_ros2"]
+	path = plain_slam_ros2
+	url = https://github.com/scorpio-robot/plain_slam_ros2.git

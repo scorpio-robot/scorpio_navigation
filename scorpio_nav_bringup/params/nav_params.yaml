@@ -1,0 +1,48 @@
+loam_interface:
+  ros__parameters:
+    use_sim_time: True
+    state_estimation_topic: "pslam/imu_odom"
+    registered_scan_topic: "pslam/aligned_scan_cloud"
+    odom_frame: "odom"
+    base_frame: "base_footprint"
+    lidar_frame: "mid360"
+    robot_base_frame: "base_link"
+
+lio_3d_node:
+  ros__parameters:
+    use_sim_time: True
+    lidar_type: "livox"
+    use_as_localizer: True
+    map_cloud_dir: $(find-pkg-share scorpio_nav_bringup)/maps/318
+    param_files_dir: $(find-pkg-share scorpio_nav_bringup)/params
+
+    pointcloud_topic: "livox/lidar"
+    imu_topic: "livox/imu"
+
+    imu_pose_topic: "pslam/imu_pose"
+    imu_odom_topic: "pslam/imu_odom"
+    lio_map_cloud_topic: "pslam/lio_map_cloud"
+    aligned_scan_cloud_topic: "pslam/aligned_scan_cloud"
+    deskewed_scan_cloud_topic: "pslam/deskewed_scan_cloud"
+
+    odom_frame: "odom"
+    imu_frame: "mid360_imu"
+    publish_tf: false  # Whether to publish TF transform from `odom_frame` to `imu_frame`
+
+slam_3d_node:
+  ros__parameters:
+    use_sim_time: True
+    map_cloud_dir: "tmp/pslam_data/"
+    param_files_dir: $(find-pkg-share scorpio_nav_bringup)/params
+
+    imu_pose_topic: "pslam/imu_pose"
+    deskewed_scan_cloud_topic: "pslam/deskewed_scan_cloud"
+
+    filtered_map_cloud_topic: "pslam/filtered_map_cloud"
+    graph_nodes_topic: "pslam/pose_graph_nodes"
+    odom_edges_topic: "pslam/pose_graph_odom_edges"
+    loop_edges_topic: "pslam/pose_graph_loop_edges"
+
+    map_frame: "map"
+    # odometry and imu frames are defined in lio_3d_config.yaml
+    publish_tf: True  # Whether to publish TF transform from `map_frame` to `odom_frame`
