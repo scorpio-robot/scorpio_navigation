@@ -3,6 +3,7 @@ loam_interface:
     use_sim_time: True
     state_estimation_topic: "pslam/imu_odom"
     registered_scan_topic: "pslam/aligned_scan_cloud"
+    map_cloud_topic: "pslam/lio_map_cloud"
     odom_frame: "odom"
     base_frame: "base_footprint"
     lidar_frame: "mid360"

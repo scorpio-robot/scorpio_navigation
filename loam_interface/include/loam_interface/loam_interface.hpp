@@ -15,7 +15,9 @@
 #ifndef LOAM_INTERFACE__LOAM_INTERFACE_HPP_
 #define LOAM_INTERFACE__LOAM_INTERFACE_HPP_
 
+#include <deque>
 #include <memory>
+#include <mutex>
 #include <string>
 
 #include "nav_msgs/msg/odometry.hpp"
@@ -47,6 +49,10 @@ private:
     const tf2::Transform & transform, const std::string & parent_frame,
     const std::string & child_frame, const rclcpp::Time & stamp);
 
+  bool getTransformAtTime(
+    const rclcpp::Time & target_time, tf2::Transform & tf_odom_to_lidar_odom_out,
+    tf2::Transform & tf_lidar_odom_to_lidar_out);
+
   rclcpp::Subscription<sensor_msgs::msg::PointCloud2>::SharedPtr pcd_sub_;
   rclcpp::Subscription<sensor_msgs::msg::PointCloud2>::SharedPtr map_cloud_sub_;
   rclcpp::Subscription<nav_msgs::msg::Odometry>::SharedPtr odom_sub_;
@@ -62,6 +68,7 @@ private:
 
   std::string state_estimation_topic_;
   std::string registered_scan_topic_;
+  std::string map_cloud_topic_;
   std::string odom_frame_;
   std::string lidar_frame_;
   std::string base_frame_;
@@ -70,6 +77,18 @@ private:
   bool base_frame_to_lidar_initialized_;
   tf2::Transform tf_odom_to_lidar_odom_;
   tf2::Transform tf_lidar_odom_to_lidar_;
+
+  // Transform history for time synchronization
+  struct TransformStamped
+  {
+    rclcpp::Time stamp;
+    tf2::Transform tf_odom_to_lidar_odom;
+    tf2::Transform tf_lidar_odom_to_lidar;
+  };
+  std::deque<TransformStamped> transform_history_;
+  std::mutex transform_mutex_;
+  static constexpr size_t MAX_HISTORY_SIZE = 100;
+  static constexpr double MAX_TIME_DIFF_SEC = 0.1;
 };
 
 }  // namespace loam_interface
