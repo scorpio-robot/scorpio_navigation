@@ -94,8 +94,6 @@ void LoamInterfaceNode::mapCloudCallback(const sensor_msgs::msg::PointCloud2::Co
   auto map_cloud = std::make_shared<sensor_msgs::msg::PointCloud2>();
   pcl_ros::transformPointCloud(odom_frame_, tf_odom_to_lidar_odom_, *msg, *map_cloud);
 
-  RCLCPP_INFO(this->get_logger(), "Publishing map cloud in frame: %s", odom_frame_.c_str());
-
   map_cloud_pub_->publish(*map_cloud);
 }
 
