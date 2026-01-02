@@ -24,15 +24,15 @@ The main node that handles coordinate frame transformations for LiDAR SLAM integ
 ### Subscriptions
 
 | Topic | Type | QoS | Description |
-|-------|------|-----|-------------|
-| `state_estimation_topic` | `nav_msgs/msg/Odometry` | Default | Odometry output from SLAM algorithm (default: `pslam/imu_odom`) |
+| ----- | ---- | --- | ----------- |
+| `loam_odometry_topic` | `nav_msgs/msg/Odometry` | Default | Odometry output from SLAM algorithm (default: `pslam/imu_odom`) |
 | `registered_scan_topic` | `sensor_msgs/msg/PointCloud2` | Default | Registered/aligned point cloud from SLAM (default: `pslam/aligned_scan_cloud`) |
 | `map_cloud_topic` | `sensor_msgs/msg/PointCloud2` | Transient Local, Reliable | Map point cloud from SLAM algorithm (default: `pslam/lio_map_cloud`, latched topic) |
 
 ### Publications
 
 | Topic | Type | Description |
-|-------|------|-------------|
+| ----- | ---- | ----------- |
 | `registered_scan` | `sensor_msgs/msg/PointCloud2` | Transformed point cloud in the global `odom_frame` (for mapping and navigation) |
 | `sensor_scan` | `sensor_msgs/msg/PointCloud2` | Transformed point cloud in the `lidar_frame` (for local perception and obstacle avoidance) |
 | `map_cloud` | `sensor_msgs/msg/PointCloud2` | Transformed map point cloud in the global `odom_frame` |
@@ -41,15 +41,15 @@ The main node that handles coordinate frame transformations for LiDAR SLAM integ
 ### TF Broadcasts
 
 | Parent Frame | Child Frame | Description |
-|--------------|-------------|-------------|
+| ------------ | ----------- | ----------- |
 | `odom_frame` | `base_frame` | Robot base pose in the odometry frame |
 
 ### Parameters
 
 | Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
+| --------- | ---- | ------- | ----------- |
 | `registered_scan_topic` | string | `pslam/aligned_scan_cloud` | Input point cloud topic from SLAM |
-| `state_estimation_topic` | string | `pslam/imu_odom` | Input odometry topic from SLAM |
+| `loam_odometry_topic` | string | `pslam/imu_odom` | Input odometry topic from SLAM |
 | `map_cloud_topic` | string | `pslam/lio_map_cloud` | Input map point cloud topic from SLAM |
 | `odom_frame` | string | `odom` | Global odometry frame ID |
 | `base_frame` | string | `base_footprint` | Robot base frame for TF broadcast |
@@ -152,7 +152,7 @@ Or with custom parameters:
 
 ```bash
 ros2 launch loam_interface loam_interface_launch.py \
-    state_estimation_topic:=/your_slam/odom \
+    loam_odometry_topic:=/your_slam/odom \
     registered_scan_topic:=/your_slam/cloud \
     odom_frame:=odom \
     base_frame:=base_footprint

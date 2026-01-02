@@ -23,7 +23,7 @@ namespace loam_interface
 LoamInterfaceNode::LoamInterfaceNode(const rclcpp::NodeOptions & options)
 : Node("loam_interface", options)
 {
-  this->declare_parameter<std::string>("state_estimation_topic", "pslam/imu_odom");
+  this->declare_parameter<std::string>("loam_odometry_topic", "pslam/imu_odom");
   this->declare_parameter<std::string>("registered_scan_topic", "pslam/aligned_scan_cloud");
   this->declare_parameter<std::string>("map_cloud_topic", "pslam/lio_map_cloud");
   this->declare_parameter<std::string>("odom_frame", "odom");
@@ -31,7 +31,7 @@ LoamInterfaceNode::LoamInterfaceNode(const rclcpp::NodeOptions & options)
   this->declare_parameter<std::string>("lidar_frame", "mid360");
   this->declare_parameter<std::string>("robot_base_frame", "base_link");
 
-  this->get_parameter("state_estimation_topic", state_estimation_topic_);
+  this->get_parameter("loam_odometry_topic", loam_odometry_topic_);
   this->get_parameter("registered_scan_topic", registered_scan_topic_);
   this->get_parameter("map_cloud_topic", map_cloud_topic_);
   this->get_parameter("odom_frame", odom_frame_);
@@ -57,7 +57,7 @@ LoamInterfaceNode::LoamInterfaceNode(const rclcpp::NodeOptions & options)
     map_cloud_topic_, rclcpp::QoS(1).transient_local().reliable(),
     std::bind(&LoamInterfaceNode::mapCloudCallback, this, std::placeholders::_1));
   odom_sub_ = this->create_subscription<nav_msgs::msg::Odometry>(
-    state_estimation_topic_, 5,
+    loam_odometry_topic_, 5,
     std::bind(&LoamInterfaceNode::odometryCallback, this, std::placeholders::_1));
 }
 

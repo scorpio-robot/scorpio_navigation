@@ -44,7 +44,7 @@ def generate_launch_description():
         parameters=[
             {
                 "use_sim_time": True,
-                "state_estimation_topic": "/gt/mid360",
+                "loam_odometry_topic": "/gt/mid360",
                 "registered_scan_topic": "/livox/lidar",
                 "odom_frame": "odom",
                 "base_frame": "base_footprint",

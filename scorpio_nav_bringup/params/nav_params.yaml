@@ -1,7 +1,7 @@
 loam_interface:
   ros__parameters:
     use_sim_time: True
-    state_estimation_topic: "pslam/imu_odom"
+    loam_odometry_topic: "pslam/imu_odom"
     registered_scan_topic: "pslam/aligned_scan_cloud"
     map_cloud_topic: "pslam/lio_map_cloud"
     odom_frame: "odom"

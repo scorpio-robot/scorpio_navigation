@@ -66,7 +66,7 @@ private:
   std::unique_ptr<tf2_ros::TransformListener> tf_listener_;
   std::unique_ptr<tf2_ros::TransformBroadcaster> tf_broadcaster_;
 
-  std::string state_estimation_topic_;
+  std::string loam_odometry_topic_;
   std::string registered_scan_topic_;
   std::string map_cloud_topic_;
   std::string odom_frame_;
