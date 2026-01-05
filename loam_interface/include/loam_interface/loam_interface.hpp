@@ -18,6 +18,9 @@
 #include <memory>
 #include <string>
 
+#include "message_filters/subscriber.h"
+#include "message_filters/sync_policies/approximate_time.h"
+#include "message_filters/synchronizer.h"
 #include "nav_msgs/msg/odometry.hpp"
 #include "sensor_msgs/msg/point_cloud2.hpp"
 #include "tf2/LinearMath/Transform.hpp"
@@ -38,6 +41,10 @@ private:
 
   void odometryCallback(const nav_msgs::msg::Odometry::ConstSharedPtr msg);
 
+  void laserCloudAndOdometryHandler(
+    const nav_msgs::msg::Odometry::ConstSharedPtr odom_msg,
+    const sensor_msgs::msg::PointCloud2::ConstSharedPtr cloud_msg);
+
   void mapCloudCallback(const sensor_msgs::msg::PointCloud2::ConstSharedPtr msg);
 
   tf2::Transform getTransform(
@@ -52,11 +59,15 @@ private:
     const std::string & child_frame, const rclcpp::Time & stamp,
     rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr pub);
 
-  rclcpp::Subscription<sensor_msgs::msg::PointCloud2>::SharedPtr pcd_sub_;
-  rclcpp::Subscription<sensor_msgs::msg::PointCloud2>::SharedPtr map_cloud_sub_;
-  rclcpp::Subscription<nav_msgs::msg::Odometry>::SharedPtr odom_sub_;
+  message_filters::Subscriber<nav_msgs::msg::Odometry> odom_sub_;
+  message_filters::Subscriber<sensor_msgs::msg::PointCloud2> pcd_sub_;
+  using SyncPolicy = message_filters::sync_policies::ApproximateTime<
+    nav_msgs::msg::Odometry, sensor_msgs::msg::PointCloud2>;
+  std::unique_ptr<message_filters::Synchronizer<SyncPolicy>> sync_;
 
-  rclcpp::Publisher<sensor_msgs::msg::PointCloud2>::SharedPtr pcd_pub_;
+  rclcpp::Subscription<sensor_msgs::msg::PointCloud2>::SharedPtr map_cloud_sub_;
+
+  rclcpp::Publisher<sensor_msgs::msg::PointCloud2>::SharedPtr registered_scan_pub_;
   rclcpp::Publisher<sensor_msgs::msg::PointCloud2>::SharedPtr sensor_scan_pub_;
   rclcpp::Publisher<sensor_msgs::msg::PointCloud2>::SharedPtr map_cloud_pub_;
   rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr base_odometry_pub_;
