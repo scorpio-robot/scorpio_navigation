@@ -65,9 +65,10 @@ Transforms input point cloud to both the global `odom_frame` and `lidar_frame` u
 
 **Time Synchronization:**
 
-- `registered_scan` and `loam_odometry` are subscribed using `message_filters` and synchronized with an **ApproximateTime** policy (queue size: 100)
-- The callback receives a time-matched pair (odometry, point cloud) so transforms and published scans are temporally consistent
-- Approximate synchronization tolerance: ~0.1 seconds (configurable via queue/window parameters)
+- Point cloud timestamp is matched with the closest odometry transform from history queue
+- Uses transform history queue with 100 entries
+- Maximum acceptable time difference: 0.1 seconds
+- Falls back to latest transform if no matching transform is found
 
 **Input Assumption:**
 
