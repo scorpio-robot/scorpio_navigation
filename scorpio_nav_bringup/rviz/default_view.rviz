@@ -54,132 +54,20 @@ Visualization Manager:
         History Policy: Keep Last
         Reliability Policy: Reliable
         Value: /robot_description
-      Enabled: true
+      Enabled: false
       Links:
         All Links Enabled: true
         Expand Joint Details: false
         Expand Link Details: false
         Expand Tree: false
         Link Tree Style: Links in Alphabetic Order
-        base_footprint:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        base_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        front_accel_frame:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        front_accel_optical_frame:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        front_bottom_screw_frame:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        front_color_frame:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        front_color_optical_frame:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        front_d435i:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        front_depth_frame:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        front_depth_optical_frame:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        front_gyro_frame:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        front_gyro_optical_frame:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        front_imu_frame:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        front_infra1_frame:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        front_infra1_optical_frame:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        front_infra2_frame:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        front_infra2_optical_frame:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        front_left_steering_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        front_left_wheel:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        front_right_steering_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        front_right_wheel:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        mid360:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        mid360_imu:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-        rear_left_wheel:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        rear_right_wheel:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        ydlidar_g4:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
       Mass Properties:
         Inertia: false
         Mass: false
       Name: RobotModel
       TF Prefix: ""
       Update Interval: 0
-      Value: true
+      Value: false
       Visual Enabled: true
     - Class: rviz_default_plugins/TF
       Enabled: true
@@ -228,6 +116,8 @@ Visualization Manager:
           Value: true
         front_right_wheel:
           Value: true
+        map:
+          Value: true
         mid360:
           Value: true
         mid360_imu:
@@ -246,45 +136,46 @@ Visualization Manager:
       Show Axes: true
       Show Names: false
       Tree:
-        odom:
-          base_footprint:
-            base_link:
-              front_bottom_screw_frame:
-                front_d435i:
-                  front_color_frame:
-                    front_color_optical_frame:
-                      {}
-                  front_depth_frame:
-                    front_depth_optical_frame:
-                      {}
-                  front_imu_frame:
-                    front_accel_frame:
-                      front_accel_optical_frame:
+        map:
+          odom:
+            base_footprint:
+              base_link:
+                front_bottom_screw_frame:
+                  front_d435i:
+                    front_color_frame:
+                      front_color_optical_frame:
                         {}
-                    front_gyro_frame:
-                      front_gyro_optical_frame:
+                    front_depth_frame:
+                      front_depth_optical_frame:
                         {}
-                  front_infra1_frame:
-                    front_infra1_optical_frame:
-                      {}
-                  front_infra2_frame:
-                    front_infra2_optical_frame:
-                      {}
-              front_left_steering_link:
-                front_left_wheel:
+                    front_imu_frame:
+                      front_accel_frame:
+                        front_accel_optical_frame:
+                          {}
+                      front_gyro_frame:
+                        front_gyro_optical_frame:
+                          {}
+                    front_infra1_frame:
+                      front_infra1_optical_frame:
+                        {}
+                    front_infra2_frame:
+                      front_infra2_optical_frame:
+                        {}
+                front_left_steering_link:
+                  front_left_wheel:
+                    {}
+                front_right_steering_link:
+                  front_right_wheel:
+                    {}
+                mid360:
+                  mid360_imu:
+                    {}
+                rear_left_wheel:
                   {}
-              front_right_steering_link:
-                front_right_wheel:
+                rear_right_wheel:
                   {}
-              mid360:
-                mid360_imu:
+                ydlidar_g4:
                   {}
-              rear_left_wheel:
-                {}
-              rear_right_wheel:
-                {}
-              ydlidar_g4:
-                {}
       Update Interval: 0
       Value: true
     - Class: rviz_common/Group
@@ -640,6 +531,266 @@ Visualization Manager:
       Use Fixed Frame: true
       Use rainbow: true
       Value: true
+    - Alpha: 1
+      Buffer Length: 1
+      Class: rviz_default_plugins/Path
+      Color: 25; 255; 0
+      Enabled: true
+      Head Diameter: 0.30000001192092896
+      Head Length: 0.20000000298023224
+      Length: 0.30000001192092896
+      Line Style: Billboards
+      Line Width: 0.05000000074505806
+      Name: Path
+      Offset:
+        X: 0
+        Y: 0
+        Z: 0
+      Pose Color: 255; 85; 255
+      Pose Style: None
+      Radius: 0.029999999329447746
+      Shaft Diameter: 0.10000000149011612
+      Shaft Length: 0.10000000149011612
+      Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        Filter size: 10
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: /path
+      Value: true
+    - Alpha: 1
+      Autocompute Intensity Bounds: false
+      Autocompute Value Bounds:
+        Max Value: 10
+        Min Value: -10
+        Value: true
+      Axis: Z
+      Channel Name: intensity
+      Class: rviz_default_plugins/PointCloud2
+      Color: 0; 170; 255
+      Color Transformer: Intensity
+      Decay Time: 0
+      Enabled: true
+      Invert Rainbow: false
+      Max Color: 255; 255; 255
+      Max Intensity: 6
+      Min Color: 0; 0; 0
+      Min Intensity: 0
+      Name: FreePaths
+      Position Transformer: XYZ
+      Selectable: true
+      Size (Pixels): 2
+      Size (m): 0.019999999552965164
+      Style: Points
+      Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        Filter size: 10
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: /free_paths
+      Use Fixed Frame: true
+      Use rainbow: true
+      Value: true
+    - Class: rviz_default_plugins/MarkerArray
+      Enabled: true
+      Name: Goalpoint
+      Namespaces:
+        {}
+      Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: /viz_node_topic
+      Value: true
+    - Alpha: 1
+      Class: rviz_default_plugins/Polygon
+      Color: 0; 255; 0
+      Enabled: false
+      Name: Boundary
+      Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        Filter size: 10
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: /navigation_boundary
+      Value: false
+    - Alpha: 1
+      Autocompute Intensity Bounds: true
+      Autocompute Value Bounds:
+        Max Value: 10
+        Min Value: -10
+        Value: true
+      Axis: Z
+      Channel Name: intensity
+      Class: rviz_default_plugins/PointCloud2
+      Color: 255; 25; 0
+      Color Transformer: ""
+      Decay Time: 0
+      Enabled: false
+      Invert Rainbow: false
+      Max Color: 255; 255; 255
+      Max Intensity: 4096
+      Min Color: 0; 0; 0
+      Min Intensity: 0
+      Name: AddedObstacles
+      Position Transformer: ""
+      Selectable: true
+      Size (Pixels): 3
+      Size (m): 0.05000000074505806
+      Style: Points
+      Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        Filter size: 10
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: /added_obstacles
+      Use Fixed Frame: true
+      Use rainbow: true
+      Value: false
+    - Alpha: 0.10000000149011612
+      Autocompute Intensity Bounds: true
+      Autocompute Value Bounds:
+        Max Value: 10
+        Min Value: -10
+        Value: true
+      Axis: Z
+      Channel Name: intensity
+      Class: rviz_default_plugins/PointCloud2
+      Color: 255; 255; 255
+      Color Transformer: FlatColor
+      Decay Time: 0
+      Enabled: true
+      Invert Rainbow: false
+      Max Color: 255; 255; 255
+      Max Intensity: 0
+      Min Color: 0; 0; 0
+      Min Intensity: 0
+      Name: OverallMap
+      Position Transformer: XYZ
+      Selectable: true
+      Size (Pixels): 2
+      Size (m): 0.009999999776482582
+      Style: Points
+      Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        Filter size: 10
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: /overall_map
+      Use Fixed Frame: true
+      Use rainbow: true
+      Value: true
+    - Alpha: 0.20000000298023224
+      Autocompute Intensity Bounds: true
+      Autocompute Value Bounds:
+        Max Value: 10
+        Min Value: -10
+        Value: true
+      Axis: Z
+      Channel Name: intensity
+      Class: rviz_default_plugins/PointCloud2
+      Color: 0; 170; 255
+      Color Transformer: FlatColor
+      Decay Time: 0
+      Enabled: false
+      Invert Rainbow: false
+      Max Color: 255; 255; 255
+      Max Intensity: 0
+      Min Color: 0; 0; 0
+      Min Intensity: 0
+      Name: ExploredAreas
+      Position Transformer: XYZ
+      Selectable: true
+      Size (Pixels): 3
+      Size (m): 0.009999999776482582
+      Style: Points
+      Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        Filter size: 10
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: /explored_areas
+      Use Fixed Frame: true
+      Use rainbow: true
+      Value: false
+    - Alpha: 1
+      Autocompute Intensity Bounds: true
+      Autocompute Value Bounds:
+        Max Value: 10
+        Min Value: -10
+        Value: true
+      Axis: Z
+      Channel Name: intensity
+      Class: rviz_default_plugins/PointCloud2
+      Color: 255; 255; 255
+      Color Transformer: Intensity
+      Decay Time: 0
+      Enabled: false
+      Invert Rainbow: false
+      Max Color: 255; 255; 255
+      Max Intensity: 46.35158157348633
+      Min Color: 0; 0; 0
+      Min Intensity: 0
+      Name: Trajectory
+      Position Transformer: XYZ
+      Selectable: true
+      Size (Pixels): 7
+      Size (m): 0.009999999776482582
+      Style: Points
+      Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        Filter size: 10
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: /trajectory
+      Use Fixed Frame: true
+      Use rainbow: true
+      Value: false
+    - Class: rviz_default_plugins/Marker
+      Enabled: true
+      Name: GlobalPath
+      Namespaces:
+        {}
+      Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        Filter size: 10
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: /viz_path_topic
+      Value: true
+    - Class: rviz_default_plugins/MarkerArray
+      Enabled: true
+      Name: VGraph
+      Namespaces:
+        {}
+      Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: /viz_graph_topic
+      Value: true
+    - Class: rviz_default_plugins/MarkerArray
+      Enabled: true
+      Name: ViewpointExtend
+      Namespaces:
+        {}
+      Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: /viz_viewpoint_extend_topic
+      Value: true
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
@@ -662,15 +813,13 @@ Visualization Manager:
         History Policy: Keep Last
         Reliability Policy: Reliable
         Value: /initialpose
-    - Class: rviz_default_plugins/PublishPoint
-      Single click: true
+    - Class: goalpoint_rviz_plugin/GoalpointTool
       Topic:
         Depth: 5
         Durability Policy: Volatile
         History Policy: Keep Last
         Reliability Policy: Reliable
-        Value: /clicked_point
-    - Class: nav2_rviz_plugins/GoalTool
+        Value: goalpoint
   Transformation:
     Current:
       Class: rviz_default_plugins/TF
@@ -696,7 +845,7 @@ Visualization Manager:
       Pitch: 1.5697963237762451
       Target Frame: base_link
       Value: Orbit (rviz_default_plugins)
-      Yaw: 3.1479780673980713
+      Yaw: 3.1379778385162354
     Saved: ~
 Window Geometry:
   Displays:
