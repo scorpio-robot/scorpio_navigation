@@ -1,67 +1,69 @@
 loam_interface:
   ros__parameters:
     use_sim_time: True
-    loam_odometry_topic: "pslam/imu_odom"
-    registered_scan_topic: "pslam/aligned_scan_cloud"
-    map_cloud_topic: "pslam/lio_map_cloud"
-    odom_frame: "odom"
-    base_frame: "base_footprint"
-    lidar_frame: "mid360"
-    robot_base_frame: "base_link"
+    loam_odometry_topic: pslam/imu_odom
+    registered_scan_topic: pslam/aligned_scan_cloud
+    map_cloud_topic: pslam/lio_map_cloud
+    odom_frame: odom
+    base_frame: base_footprint
+    lidar_frame: mid360
+    robot_base_frame: base_link
 
 lio_3d_node:
   ros__parameters:
     use_sim_time: True
-    lidar_type: "livox"
-    use_as_localizer: True
-    map_cloud_dir: $(find-pkg-share scorpio_nav_bringup)/maps/real_car_20251227_171000
+    lidar_type: livox
+    # The `use_as_localizer` and `map_cloud_dir` does not need to be specified
+    # since it going to be set by defaults in launch.
+    # use_as_localizer:
+    # map_cloud_dir:
     param_files_dir: $(find-pkg-share scorpio_nav_bringup)/params/reality
 
-    pointcloud_topic: "livox/lidar"
-    imu_topic: "livox/imu"
+    pointcloud_topic: livox/lidar
+    imu_topic: livox/imu
 
-    imu_pose_topic: "pslam/imu_pose"
-    imu_odom_topic: "pslam/imu_odom"
-    lio_map_cloud_topic: "pslam/lio_map_cloud"
-    aligned_scan_cloud_topic: "pslam/aligned_scan_cloud"
-    deskewed_scan_cloud_topic: "pslam/deskewed_scan_cloud"
+    imu_pose_topic: pslam/imu_pose
+    imu_odom_topic: pslam/imu_odom
+    lio_map_cloud_topic: pslam/lio_map_cloud
+    aligned_scan_cloud_topic: pslam/aligned_scan_cloud
+    deskewed_scan_cloud_topic: pslam/deskewed_scan_cloud
 
-    odom_frame: "pslam/odom"
-    imu_frame: "pslam/mid360_imu"
-    publish_tf: false  # Whether to publish TF transform from `odom_frame` to `imu_frame`
+    odom_frame: pslam/odom
+    imu_frame: pslam/mid360_imu
+    publish_tf: False  # Whether to publish TF transform from `odom_frame` to `imu_frame`
 
 slam_3d_node:
   ros__parameters:
     use_sim_time: True
-    map_cloud_dir: "tmp/pslam_data/"
+    map_cloud_dir: tmp/pslam_data/
     param_files_dir: $(find-pkg-share scorpio_nav_bringup)/params/reality
 
-    imu_pose_topic: "pslam/imu_pose"
-    deskewed_scan_cloud_topic: "pslam/deskewed_scan_cloud"
+    imu_pose_topic: pslam/imu_pose
+    deskewed_scan_cloud_topic: pslam/deskewed_scan_cloud
+    filtered_map_cloud_topic: pslam/filtered_map_cloud
+    graph_nodes_topic: pslam/pose_graph_nodes
+    odom_edges_topic: pslam/pose_graph_odom_edges
+    loop_edges_topic: pslam/pose_graph_loop_edges
 
-    filtered_map_cloud_topic: "pslam/filtered_map_cloud"
-    graph_nodes_topic: "pslam/pose_graph_nodes"
-    odom_edges_topic: "pslam/pose_graph_odom_edges"
-    loop_edges_topic: "pslam/pose_graph_loop_edges"
-
-    map_frame: "pslam/map"
+    map_frame: pslam/map
     # odometry and imu frames are defined in lio_3d_config.yaml
-    publish_tf: false  # Whether to publish TF transform from `map_frame` to `odom_frame`
+    publish_tf: False  # Whether to publish TF transform from `map_frame` to `odom_frame`
 
 terrain_analysis:
   ros__parameters:
-    odom_frame: "odom"
-    lidar_frame: "mid360"
+    use_sim_time: True
+    odom_frame: odom
+    lidar_frame: mid360
     scan_voxel_size: 0.05
     decay_time: 2.0
     no_decay_dis: 4.0
     clearing_dis: 8.0
-    use_sorting: true
+    use_sorting: True
     quantile_z: 0.25
-    consider_drop: false
-    limit_ground_lift: false
+    consider_drop: False
+    limit_ground_lift: False
     max_ground_lift: 0.15
-    clear_dy_obs: false
+    clear_dy_obs: False
     min_dy_obs_dis: 0.3
     abs_dy_obs_rel_z_thre: 0.2
     min_dy_obs_vfov: -16.0
@@ -69,7 +71,7 @@ terrain_analysis:
     min_dy_obs_point_num: 1
     min_out_of_fov_point_num: 2
     obstacle_height_thre: 0.2
-    no_data_obstacle: false
+    no_data_obstacle: False
     no_data_block_skip_num: 0
     min_block_point_num: 10
     vehicle_height: 1.5
@@ -81,6 +83,7 @@ terrain_analysis:
 
 terrain_analysis_ext:
   ros__parameters:
+    use_sim_time: True
     odom_frame: odom
     lidar_frame: mid360
     terrain_voxel_size: 2.0
@@ -90,7 +93,7 @@ terrain_analysis_ext:
     voxel_point_count_thre: 100
     ground_elevation_thre: 0.5
     use_terrain_dyn_thre: 1.5
-    check_terrain_conn: true
+    check_terrain_conn: True
     terrain_under_vehicle: -0.75
     ceiling_filtering_thre: 2.0
     local_terrain_map_radius: 4.0
@@ -104,6 +107,7 @@ terrain_analysis_ext:
 
 far_planner:
   ros__parameters:
+    use_sim_time: True
     # Dynamic Planner Default Params
     main_run_freq: 5.0
     voxel_dim: 0.1  # Unit: meter
@@ -113,17 +117,17 @@ far_planner:
     terrain_range: 7.5   # Unit: meter
     local_planner_range: 2.5   # Unit: meter
     visualize_ratio: 0.4
-    is_viewpoint_extend: true
-    is_multi_layer: false
-    is_opencv_visual: false # Obstacle Image Display
-    is_static_env: false
-    is_pub_boundary: false
-    is_debug_output: false
-    is_attempt_autoswitch: true  # Auto switch to attemptable navigation
+    is_viewpoint_extend: True
+    is_multi_layer: False
+    is_opencv_visual: False # Obstacle Image Display
+    is_static_env: False
+    is_pub_boundary: False
+    is_debug_output: False
+    is_attempt_autoswitch: True  # Auto switch to attemptable navigation
     world_frame: map
 
     # Graph Messager
-    graph_msger/robot_id: 1  # graph from robot id "0" is extracted from files
+    graph_msger/robot_id: 1  # graph from robot id `0` is extracted from files
 
     # Map Handler Params
     map_handler/floor_height: 1.5    # Unit: meter
@@ -151,7 +155,7 @@ far_planner:
     # Corner Detector Params
     c_detector/resize_ratio: 3.0
     c_detector/filter_count_value: 6
-    c_detector/is_save_img: false
+    c_detector/is_save_img: False
     c_detector/img_folder_path: /path
 
     # Graph Planner Params

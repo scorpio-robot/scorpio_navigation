@@ -1,4 +1,4 @@
-# Copyright 2025 Lihan Chen
+# Copyright 2026 Lihan Chen
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -52,7 +52,7 @@ def generate_launch_description():
 
     declare_rviz_config_file_cmd = DeclareLaunchArgument(
         "rviz_config_file",
-        default_value=os.path.join(bringup_dir, "rviz", "nav2_default_view.rviz"),
+        default_value=os.path.join(bringup_dir, "rviz", "default_view.rviz"),
         description="Full path to the RVIZ config file to use",
     )
 
