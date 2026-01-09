@@ -7,3 +7,6 @@
 [submodule "terrain_analysis_ext"]
 	path = terrain_analysis_ext
 	url = https://github.com/scorpio-robot/terrain_analysis_ext.git
+[submodule "local_planner"]
+	path = local_planner
+	url = https://github.com/scorpio-robot/local_planner.git

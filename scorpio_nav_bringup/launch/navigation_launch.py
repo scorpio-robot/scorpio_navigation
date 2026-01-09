@@ -95,27 +95,27 @@ def generate_launch_description():
         "log_level", default_value="info", description="log level"
     )
 
-    start_far_planner_cmd = Node(
-        package="far_planner",
-        executable="far_planner",
-        name="far_planner",
-        output="screen",
-        respawn=use_respawn,
-        respawn_delay=2.0,
-        parameters=[configured_params],
-        arguments=["--ros-args", "--log-level", log_level],
-    )
+    # start_far_planner_cmd = Node(
+    #     package="far_planner",
+    #     executable="far_planner",
+    #     name="far_planner",
+    #     output="screen",
+    #     respawn=use_respawn,
+    #     respawn_delay=2.0,
+    #     parameters=[configured_params],
+    #     arguments=["--ros-args", "--log-level", log_level],
+    # )
 
-    start_graph_decoder_cmd = Node(
-        package="graph_decoder",
-        executable="graph_decoder",
-        name="graph_decoder",
-        output="screen",
-        respawn=use_respawn,
-        respawn_delay=2.0,
-        parameters=[configured_params],
-        arguments=["--ros-args", "--log-level", log_level],
-    )
+    # start_graph_decoder_cmd = Node(
+    #     package="graph_decoder",
+    #     executable="graph_decoder",
+    #     name="graph_decoder",
+    #     output="screen",
+    #     respawn=use_respawn,
+    #     respawn_delay=2.0,
+    #     parameters=[configured_params],
+    #     arguments=["--ros-args", "--log-level", log_level],
+    # )
 
     load_nodes = GroupAction(
         condition=IfCondition(PythonExpression(["not ", use_composition])),
@@ -144,6 +144,26 @@ def generate_launch_description():
                 package="terrain_analysis_ext",
                 executable="terrain_analysis_ext_node",
                 name="terrain_analysis_ext",
+                output="screen",
+                respawn=use_respawn,
+                respawn_delay=2.0,
+                parameters=[configured_params],
+                arguments=["--ros-args", "--log-level", log_level],
+            ),
+            Node(
+                package="local_planner",
+                executable="local_planner_node",
+                name="local_planner",
+                output="screen",
+                respawn=use_respawn,
+                respawn_delay=2.0,
+                parameters=[configured_params],
+                arguments=["--ros-args", "--log-level", log_level],
+            ),
+            Node(
+                package="local_planner",
+                executable="path_follower_node",
+                name="path_follower",
                 output="screen",
                 respawn=use_respawn,
                 respawn_delay=2.0,
@@ -219,8 +239,8 @@ def generate_launch_description():
     ld.add_action(declare_use_respawn_cmd)
     ld.add_action(declare_log_level_cmd)
     # Add the actions to launch all of the navigation nodes
-    ld.add_action(start_far_planner_cmd)
-    ld.add_action(start_graph_decoder_cmd)
+    # ld.add_action(start_far_planner_cmd)
+    # ld.add_action(start_graph_decoder_cmd)
     ld.add_action(load_nodes)
     ld.add_action(load_composable_nodes)
     ld.add_action(start_static_transform_publisher)

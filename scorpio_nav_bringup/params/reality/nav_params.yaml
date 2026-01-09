@@ -63,18 +63,18 @@ terrain_analysis:
     consider_drop: False
     limit_ground_lift: False
     max_ground_lift: 0.15
-    clear_dy_obs: False
+    clear_dy_obs: True
     min_dy_obs_dis: 0.3
     abs_dy_obs_rel_z_thre: 0.2
     min_dy_obs_vfov: -16.0
     max_dy_obs_vfov: 16.0
     min_dy_obs_point_num: 1
     min_out_of_fov_point_num: 2
-    obstacle_height_thre: 0.2
+    obstacle_height_thre: 0.15
     no_data_obstacle: False
     no_data_block_skip_num: 0
     min_block_point_num: 10
-    vehicle_height: 1.5
+    vehicle_height: 0.6
     min_rel_z: -1.5
     max_rel_z: 0.2
     dis_ratio_z: 0.2
@@ -104,6 +104,80 @@ terrain_analysis_ext:
     vertical_angle_thre: 0.0
     max_terrain_angle: 30.0
     ground_z_thre: 0.1
+
+local_planner:
+  ros__parameters:
+    use_sim_time: True
+    base_frame: base_link
+    lidar_frame: mid360
+    path_folder: $(find-pkg-share local_planner)/paths
+    vehicle_length: 0.5
+    vehicle_width: 0.5
+    two_way_drive: true
+    no_path_reverse: true
+    laser_voxel_size: 0.05
+    terrain_voxel_size: 0.2
+    use_terrain_analysis: true
+    check_obstacle: true
+    check_rot_obstacle: false
+    adjacent_range: 3.5
+    obstacle_height_threshold: 0.15
+    ground_height_threshold: 0.1
+    cost_height_threshold: 0.1
+    cost_score: 0.02
+    use_cost: false
+    point_per_path_threshold: 2
+    min_relative_z: -0.6
+    max_relative_z: 0.6
+    max_speed: 1.0
+    direction_weight: 0.02
+    direction_threshold: 10.0
+    direction_to_vehicle: true
+    path_scale: 1.0
+    min_path_scale: 0.75
+    path_scale_step: 0.25
+    path_scale_by_speed: true
+    min_path_range: 1.0
+    path_range_step: 0.5
+    path_range_by_speed: true
+    path_crop_by_goal: true
+    autonomy_mode: false
+    autonomy_speed: 1.0
+    joy_to_speed_delay: 2.0
+    joy_to_check_obstacle_delay: 5.0
+    goal_clear_range: 0.5
+
+path_follower:
+  ros__parameters:
+    use_sim_time: True
+    base_frame: base_link
+    lidar_frame: mid360
+    pub_skip_num: 1
+    two_way_drive: true
+    look_ahead_distance: 0.5
+    yaw_rate_gain: 7.5
+    stop_yaw_rate_gain: 7.5
+    max_yaw_rate: 45.0
+    max_speed: 1.0
+    max_acceleration: 1.0
+    switch_time_threshold: 1.0
+    direction_diff_threshold: 3.1
+    stop_distance_threshold: 0.2
+    slow_down_distance_threshold: 1.0
+    use_inclination_rate_to_slow: false
+    inclination_rate_threshold: 120.0
+    slow_rate_1: 0.25
+    slow_rate_2: 0.5
+    slow_time_1: 2.0
+    slow_time_2: 2.0
+    use_inclination_to_stop: false
+    inclination_threshold: 45.0
+    stop_time: 5.0
+    no_rotation_at_stop: false
+    no_rotation_at_goal: true
+    autonomy_mode: false
+    autonomy_speed: 1.0
+    joy_to_speed_delay: 2.0
 
 far_planner:
   ros__parameters:
