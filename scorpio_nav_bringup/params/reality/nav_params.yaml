@@ -112,7 +112,7 @@ local_planner:
     lidar_frame: mid360
     path_folder: $(find-pkg-share local_planner)/paths
     vehicle_length: 0.5
-    vehicle_width: 0.5
+    vehicle_width: 0.25
     two_way_drive: true
     no_path_reverse: true
     laser_voxel_size: 0.05
