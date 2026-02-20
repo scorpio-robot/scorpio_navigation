@@ -19,8 +19,11 @@ from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, GroupAction, SetEnvironmentVariable
 from launch.conditions import IfCondition
-from launch.substitutions import LaunchConfiguration, PythonExpression
-from launch_ros.actions import LoadComposableNodes, Node
+from launch.substitutions import (
+    LaunchConfiguration,
+    PythonExpression,
+)
+from launch_ros.actions import LoadComposableNodes, Node, SetParameter
 from launch_ros.descriptions import ComposableNode, ParameterFile
 from nav2_common.launch import RewrittenYaml
 
@@ -40,14 +43,11 @@ def generate_launch_description():
     use_respawn = LaunchConfiguration("use_respawn")
     log_level = LaunchConfiguration("log_level")
 
-    # Create our own temporary YAML files that include substitutions
-    param_substitutions = {"use_sim_time": use_sim_time, "yaml_filename": map_yaml_file}
-
     configured_params = ParameterFile(
         RewrittenYaml(
             source_file=params_file,
             root_key=namespace,
-            param_rewrites=param_substitutions,
+            param_rewrites={},
             convert_types=True,
         ),
         allow_substs=True,
@@ -110,6 +110,7 @@ def generate_launch_description():
     load_nodes = GroupAction(
         condition=IfCondition(PythonExpression(["not ", use_composition])),
         actions=[
+            SetParameter("use_sim_time", use_sim_time),
             Node(
                 package="plain_slam_ros2",
                 executable="lio_3d_node",
@@ -126,17 +127,27 @@ def generate_launch_description():
         ],
     )
 
-    load_composable_nodes = LoadComposableNodes(
+    # LoadComposableNode for map server twice depending if we should use the
+    # value of map from a CLI or launch default or user defined value in the
+    # yaml configuration file. They are separated since the conditions
+    # currently only work on the LoadComposableNodes commands and not on the
+    # ComposableNode node function itself
+    load_composable_nodes = GroupAction(
         condition=IfCondition(use_composition),
-        target_container=container_name_full,
-        composable_node_descriptions=[
-            ComposableNode(
-                package="plain_slam_ros2",
-                plugin="plain_slam::LIO3DNode",
-                name="lio_3d_node",
-                parameters=[
-                    configured_params,
-                    {"use_as_localizer": True, "map_cloud_dir": map_cloud_dir},
+        actions=[
+            SetParameter("use_sim_time", use_sim_time),
+            LoadComposableNodes(
+                target_container=container_name_full,
+                composable_node_descriptions=[
+                    ComposableNode(
+                        package="plain_slam_ros2",
+                        plugin="plain_slam::LIO3DNode",
+                        name="lio_3d_node",
+                        parameters=[
+                            configured_params,
+                            {"use_as_localizer": True, "map_cloud_dir": map_cloud_dir},
+                        ],
+                    ),
                 ],
             ),
         ],

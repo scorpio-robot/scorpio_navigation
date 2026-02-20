@@ -20,7 +20,7 @@ from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, GroupAction, SetEnvironmentVariable
 from launch.conditions import IfCondition
 from launch.substitutions import LaunchConfiguration, PythonExpression
-from launch_ros.actions import LoadComposableNodes, Node
+from launch_ros.actions import LoadComposableNodes, Node, SetParameter
 from launch_ros.descriptions import ComposableNode, ParameterFile
 from nav2_common.launch import RewrittenYaml
 
@@ -39,7 +39,7 @@ def generate_launch_description():
     log_level = LaunchConfiguration("log_level")
 
     # Create our own temporary YAML files that include substitutions
-    param_substitutions = {"use_sim_time": use_sim_time}
+    param_substitutions = {}
 
     configured_params = ParameterFile(
         RewrittenYaml(
@@ -120,6 +120,7 @@ def generate_launch_description():
     load_nodes = GroupAction(
         condition=IfCondition(PythonExpression(["not ", use_composition])),
         actions=[
+            SetParameter("use_sim_time", use_sim_time),
             Node(
                 package="loam_interface",
                 executable="loam_interface_node",
@@ -173,27 +174,32 @@ def generate_launch_description():
         ],
     )
 
-    load_composable_nodes = LoadComposableNodes(
+    load_composable_nodes = GroupAction(
         condition=IfCondition(use_composition),
-        target_container=container_name_full,
-        composable_node_descriptions=[
-            ComposableNode(
-                package="loam_interface",
-                plugin="loam_interface::LoamInterfaceNode",
-                name="loam_interface",
-                parameters=[configured_params],
-            ),
-            ComposableNode(
-                package="terrain_analysis",
-                plugin="terrain_analysis::TerrainAnalysisNode",
-                name="terrain_analysis",
-                parameters=[configured_params],
-            ),
-            ComposableNode(
-                package="terrain_analysis_ext",
-                plugin="terrain_analysis_ext::TerrainAnalysisExtNode",
-                name="terrain_analysis_ext",
-                parameters=[configured_params],
+        actions=[
+            SetParameter("use_sim_time", use_sim_time),
+            LoadComposableNodes(
+                target_container=container_name_full,
+                composable_node_descriptions=[
+                    ComposableNode(
+                        package="loam_interface",
+                        plugin="loam_interface::LoamInterfaceNode",
+                        name="loam_interface",
+                        parameters=[configured_params],
+                    ),
+                    ComposableNode(
+                        package="terrain_analysis",
+                        plugin="terrain_analysis::TerrainAnalysisNode",
+                        name="terrain_analysis",
+                        parameters=[configured_params],
+                    ),
+                    ComposableNode(
+                        package="terrain_analysis_ext",
+                        plugin="terrain_analysis_ext::TerrainAnalysisExtNode",
+                        name="terrain_analysis_ext",
+                        parameters=[configured_params],
+                    ),
+                ],
             ),
         ],
     )

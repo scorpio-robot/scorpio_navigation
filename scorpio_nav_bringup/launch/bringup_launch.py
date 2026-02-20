@@ -24,16 +24,16 @@ from launch.actions import (
 )
 from launch.conditions import (
     IfCondition,
-    LaunchConfigurationEquals,
-    LaunchConfigurationNotEquals,
 )
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import (
     AndSubstitution,
+    EqualsSubstitution,
     LaunchConfiguration,
+    NotEqualsSubstitution,
     NotSubstitution,
 )
-from launch_ros.actions import Node, PushRosNamespace, SetRemap
+from launch_ros.actions import Node, PushROSNamespace, SetRemap
 from launch_ros.descriptions import ParameterFile
 from nav2_common.launch import ReplaceString, RewrittenYaml
 
@@ -55,9 +55,6 @@ def generate_launch_description():
     log_level = LaunchConfiguration("log_level")
     simulation = LaunchConfiguration("simulation")
 
-    # Create our own temporary YAML files that include substitutions
-    param_substitutions = {"use_sim_time": use_sim_time, "yaml_filename": map_yaml_file}
-
     # Only it applies when `namespace` is not empty.
     # '<robot_namespace>' keyword shall be replaced by 'namespace' launch argument
     # in config file 'nav2_multirobot_params.yaml' as a default & example.
@@ -65,20 +62,22 @@ def generate_launch_description():
     params_file = ReplaceString(
         source_file=params_file,
         replacements={"<robot_namespace>": ("")},
-        condition=LaunchConfigurationEquals("namespace", ""),
+        condition=IfCondition(EqualsSubstitution(LaunchConfiguration("namespace"), "")),
     )
 
     params_file = ReplaceString(
         source_file=params_file,
         replacements={"<robot_namespace>": ("/", namespace)},
-        condition=LaunchConfigurationNotEquals("namespace", ""),
+        condition=IfCondition(
+            NotEqualsSubstitution(LaunchConfiguration("namespace"), "")
+        ),
     )
 
     configured_params = ParameterFile(
         RewrittenYaml(
             source_file=params_file,
             root_key=namespace,
-            param_rewrites=param_substitutions,
+            param_rewrites={},
             convert_types=True,
         ),
         allow_substs=True,
@@ -143,7 +142,7 @@ def generate_launch_description():
     # Specify the actions
     bringup_cmd_group = GroupAction(
         [
-            PushRosNamespace(namespace=namespace),
+            PushROSNamespace(namespace=namespace),
             SetRemap("/tf", "tf"),
             SetRemap("/tf_static", "tf_static"),
             Node(
