@@ -33,7 +33,6 @@ def generate_launch_description():
     bringup_dir = get_package_share_directory("scorpio_nav_bringup")
 
     namespace = LaunchConfiguration("namespace")
-    map_yaml_file = LaunchConfiguration("map")
     use_sim_time = LaunchConfiguration("use_sim_time")
     map_cloud_dir = LaunchConfiguration("map_cloud_dir")
     params_file = LaunchConfiguration("params_file")
